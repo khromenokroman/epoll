@@ -24,10 +24,19 @@ int main()
             return -1;
         }
         printf("epoll fd: %d\n", efd);
-        struct epoll_event ev1;
-        ev1.data.fd = fd_text;
-        ev1.events = EPOLLIN;
-        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1)) //в книге написанно что нельяз передовать дескриптор файла
+        // struct epoll_event ev1;
+        // ev1.data.fd = fd_text;
+        // ev1.events = EPOLLIN;
+        // if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1)) //в книге написанно что нельяз передовать дескриптор файла
+        // {
+        //     printf("Error epoll ctl!!!\n");
+        //     return -1;
+        // }
+
+        struct epoll_event ev2;
+        ev2.data.fd = 0;
+        ev2.events = EPOLLIN;
+        if (epoll_ctl(efd, EPOLL_CTL_ADD, 0, &ev2)) //в книге написанно что нельяз передовать дескриптор файла
         {
             printf("Error epoll ctl!!!\n");
             return -1;
@@ -48,17 +57,18 @@ int main()
             }
             if (!res)
             {
-                printf("res: %d\n", res);
-                printf("timeout%d\n", rand() % 100);
+                // printf("res: %d\n", res);
+                // printf("timeout%d\n", rand() % 100);
             }
             else
             {
                 for (int i = 0; i < res; i++)
                 {
                     struct epoll_event *cur = &events[i];
-                    if (cur->data.fd == fd_text)
+                    if (cur->data.fd == 0)
                     {
-                        printf("file is add!!!");
+                        printf("file is add!!!\n");
+                        return 0;
                     }
                 }
             }
