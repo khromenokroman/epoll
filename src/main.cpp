@@ -27,7 +27,7 @@ int main()
         struct epoll_event ev1;
         ev1.data.fd = fd_text;
         ev1.events = EPOLLIN;
-        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1))
+        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1)) //в книге написанно что нельяз передовать дескриптор файла
         {
             printf("Error epoll ctl!!!\n");
             return -1;
