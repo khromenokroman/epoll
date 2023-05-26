@@ -16,12 +16,22 @@ int main()
     }
     else
     {
-        printf("fd: %d\n",fd_text);
-        int efd = epoll_create1(0);
+        printf("file 1.txt fd: %d\n", fd_text);
+        int efd = epoll_create(1);
+        if (efd ==-1)
+        {
+            printf("Error epoll create!!!\n");
+            return -1;
+        }
+        printf("epoll fd: %d\n", efd);
         struct epoll_event ev1;
         ev1.data.fd = fd_text;
         ev1.events = EPOLLIN;
-        epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1);
+        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1))
+        {
+            printf("Error epoll ctl!!!\n");
+            return -1;
+        }
 
         while (1)
         {
@@ -33,12 +43,12 @@ int main()
             int res = epoll_wait(efd, events, MAX_EVENT, 500);
             if (res < 0)
             {
-                printf("Error!!!");
-                abort();
+                printf("Error epoll wait!!!\n");
+                return -1;
             }
             if (!res)
             {
-                printf("res: %d\n",res);
+                printf("res: %d\n", res);
                 printf("timeout%d\n", rand() % 100);
             }
             else
