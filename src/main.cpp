@@ -37,6 +37,7 @@ int main()
     fds.fd = fd_in;      // добавим файл источник в мониторинг
     fds.events = POLLIN; // события, происходящие с файловым дескриптором
 
+    fcntl(fd_in,fcntl(fd_in,F_GETFL)| O_NONBLOCK);
     while (true)
     {
         result = poll(&fds, 1, -1); // узнаем что готово
