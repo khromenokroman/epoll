@@ -73,7 +73,7 @@ int main()
                             return -1;
                         }
                         printf("read %d bytes: %.*s", data_read_file, data_read_file, buf); // show data
-                        printf(buf);
+                        
                         fd_write = open(file_name_write, O_CREAT | O_APPEND | O_WRONLY, 0770);
 
                         if (data_read_file != BUFFER_SIZE) // if data < buffer
