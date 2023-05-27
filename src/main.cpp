@@ -13,6 +13,7 @@ int main()
     if (fd_text == -1)
     {
         printf("Error open file!!\nNeed file 1.txt\n");
+        return -1;
     }
     else
     {
