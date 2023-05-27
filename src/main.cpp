@@ -12,7 +12,7 @@ int main()
     int result;                // готовность дескрипторов
     char const *file_name_in;  // имя файла за которым смотрим
     char const *file_name_out; // имя файла куда пишем
-    char buf[2];             // буффер
+    char buf[5];             // буффер
     off_t off_s;               // смещение
 
     file_name_in = "input.txt"; // имена файлов
@@ -52,7 +52,7 @@ int main()
             {
                 printf("Файл источник готов для чтения\n");
                 printf("Позиция курсора: %ld\n", off_s);
-                num_pread = pread(fd_in, buf, 2, off_s);
+                num_pread = pread(fd_in, buf, 5, off_s);
                 printf("read bytes: %ld\n", num_pread);
                 printf("buffer: %s\n", buf);
                 return 0;
