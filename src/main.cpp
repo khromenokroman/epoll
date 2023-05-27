@@ -14,17 +14,19 @@ int main()
     const int8_t MAX_EVENT = 10; // max event
     int data_read_file;          // byte read
     char buf[100];               // buf
-    char const *file_name = "p";
+    char const *file_name_read = "p";
+    char const *file_name_write = "a";
+    int fd_read, fd_write;
 
-    int fd_text = open(file_name, O_RDONLY); // open file
-    if (fd_text == -1)                       // maybe error
+    fd_read = open(file_name_read, O_RDONLY); // open file
+    if (fd_read == -1)                        // maybe error
     {
         printf("Error open file!!\nNeed file 1.txt\n");
         return -1;
     }
     else
     {
-        printf("file 1.txt fd: %d\n", fd_text); // show fd
+        printf("file 1.txt fd: %d\n", fd_read); // show fd
         int efd = epoll_create(2);              // create epoll
         if (efd == -1)                          // maybe error
         {
@@ -33,12 +35,11 @@ int main()
         }
         printf("epoll fd: %d\n", efd); // show fd epoll
 
-        struct epoll_event ev; //create struct monitoring
-        ev.data.fd = fd_text;
+        struct epoll_event ev; // create struct monitoring
+        ev.data.fd = fd_read;
         ev.events = EPOLLIN;
 
-        
-        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev) == -1) //add fd file in epoll
+        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_read, &ev) == -1) // add fd file in epoll
         {
             printf("Error epoll ctl!!!\n");
             return -1;
@@ -46,39 +47,45 @@ int main()
 
         while (1)
         {
-            struct epoll_event events[MAX_EVENT]; //max events
+            struct epoll_event events[MAX_EVENT]; // max events
             int res = epoll_wait(efd, events, MAX_EVENT, -1);
-            if (res < 0) //maybe error
+            if (res < 0) // maybe error
             {
                 printf("Error epoll wait!!!\n");
                 return -1;
             }
-            if (!res) //wait
+            if (!res) // wait
             {
                 printf("res: %d\n", res);
                 printf("timeout%d\n", rand() % 100);
             }
             else // work data
             {
-                for (int i = 0; i < res; i++) //begin in result
+                for (int i = 0; i < res; i++) // begin in result
                 {
-                    if (events[i].events & EPOLLIN) //work event
+                    if (events[i].events & EPOLLIN) // work event
                     {
-                        data_read_file = read(events[i].data.fd, buf, 100); //read data in event
-                        if (data_read_file == -1) //maybe error
+                        data_read_file = read(events[i].data.fd, buf, 100); // read data in event
+                        if (data_read_file == -1)                           // maybe error
                         {
                             printf("Error read!!!");
                             return -1;
                         }
-                        printf("read %d bytes: %.*s", data_read_file, data_read_file, buf); //show data
+                        printf("read %d bytes: %.*s", data_read_file, data_read_file, buf); // show data
+                        fd_write = open(file_name_write, O_CREAT | O_APPEND | O_WRONLY, 0770);
                     }
                 }
             }
         }
     }
-    if (close(fd_text) == -1) //claen
+    if (close(fd_read) == -1) // claen
     {
-        printf("[ERROR] Cannot close file!]");
+        printf("[ERROR] Cannot close file read!");
+        return -1;
+    }
+    if (close(fd_write) == -1) // claen
+    {
+        printf("[ERROR] Cannot close file write!");
         return -1;
     }
 }
