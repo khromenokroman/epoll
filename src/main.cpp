@@ -73,7 +73,7 @@ int main()
                             return -1;
                         }
                         printf("read %d bytes: %.*s", data_read_file, data_read_file, buf); // show data
-
+                        printf(buf);
                         fd_write = open(file_name_write, O_CREAT | O_APPEND | O_WRONLY, 0770);
 
                         if (data_read_file != BUFFER_SIZE) // if data < buffer
@@ -82,7 +82,6 @@ int main()
                             size_t bytes_to_write = data_read_file;
                             for (int bytes_written = 0; bytes_written < bytes_to_write;) // check
                             {
-
                                 int currently_written = write(fd_write, buf_new + bytes_written, bytes_to_write - bytes_written); // write
                                 if (currently_written == -1)                                                                      // maybe error
                                 {
