@@ -34,7 +34,7 @@ int main()
         ev.events = EPOLLIN;
 
         //add epoll fd
-        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev) == -1) // в книге написанно что нельяз передовать дескриптор файла
+        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev) == -1)
         {
             printf("Error epoll ctl!!!\n");
             return -1;
