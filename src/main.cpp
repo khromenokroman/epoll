@@ -9,7 +9,7 @@
 int main()
 {
 
-    int fd_text = open("1.txt", O_RDONLY, 0770);
+    int fd_text = open("p", O_RDONLY);
     if (fd_text == -1)
     {
         printf("Error open file!!\nNeed file 1.txt\n");
@@ -18,7 +18,7 @@ int main()
     else
     {
         printf("file 1.txt fd: %d\n", fd_text);
-        int efd = epoll_create(5); //create
+        int efd = epoll_create(2); //create
         if (efd == -1)
         {
             printf("Error epoll create!!!\n");
@@ -26,27 +26,19 @@ int main()
         }
         printf("epoll fd: %d\n", efd);
 
-        fcntl(fd_text, fcntl(fd_text, F_GETFL) | O_NONBLOCK);
+        // fcntl(fd_text, fcntl(fd_text, F_GETFL) | O_NONBLOCK);
 
-        struct epoll_event ev1;
-        ev1.data.fd = fd_text;
-        ev1.events = EPOLLIN;
-        
+        struct epoll_event ev;
+        ev.data.fd = fd_text;
+        ev.events = EPOLLIN;
+
         //add epoll fd
-        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1) == -1) // в книге написанно что нельяз передовать дескриптор файла
+        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev) == -1) // в книге написанно что нельяз передовать дескриптор файла
         {
             printf("Error epoll ctl!!!\n");
             return -1;
         }
 
-        // struct epoll_event ev2;
-        // ev2.data.fd = 0;
-        // ev2.events = EPOLLIN;
-        // if (epoll_ctl(efd, EPOLL_CTL_ADD, 0, &ev2)) //в книге написанно что нельяз передовать дескриптор файла
-        // {
-        //     printf("Error epoll ctl!!!\n");
-        //     return -1;
-        // }
 
         while (1)
         {
