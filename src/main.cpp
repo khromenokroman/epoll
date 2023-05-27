@@ -1,122 +1,44 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/epoll.h>
+#include <poll.h>
 
 int main()
 {
-    printf("Start program\n");
+    struct pollfd fds[2]; // инициализация структуры
 
-    /*parameters*/
-    const int8_t MAX_EVENT = 10;    // max event
-    const int8_t BUFFER_SIZE = 100; // buffer size
-    int data_read_file;             // byte read
-    char buf[BUFFER_SIZE];          // buf
-    char const *file_name_read = "p";
-    char const *file_name_write = "a";
-    int fd_read, fd_write;
+    int fd_in, fd_out;         // файловые дескрипторы
+    int result;                // готовность дескрипторов
+    char const *file_name_in;  // имя файла за которым смотрим
+    char const *file_name_out; // имя файла куда пишем
 
-    fd_read = open(file_name_read, O_RDONLY); // open file
-    if (fd_read == -1)                        // maybe error
+    file_name_in = "input.txt"; // имена файлов
+    file_name_out = "output.txt";
+
+    fd_in = open(file_name_in, O_RDONLY | O_NONBLOCK, 0770); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
+    if (fd_in == -1)                                         // проверим на ошибку открытия
     {
-        printf("Error open file!!\nNeed file 1.txt\n");
+        printf("Не могу открыть файл источник!\n");
         return -1;
     }
-    else
+    fd_in = open(file_name_out, O_RDWR | O_CREAT | O_APPEND, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
+    if (fd_in == -1)                                                // проверим на ошибку открытия
     {
-        printf("file 1.txt fd: %d\n", fd_read); // show fd
-        int efd = epoll_create(2);              // create epoll
-        if (efd == -1)                          // maybe error
-        {
-            printf("Error epoll create!!!\n");
-            return -1;
-        }
-        printf("epoll fd: %d\n", efd); // show fd epoll
-
-        struct epoll_event ev; // create struct monitoring
-        ev.data.fd = fd_read;
-        ev.events = EPOLLIN;
-
-        if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_read, &ev) == -1) // add fd file in epoll
-        {
-            printf("Error epoll ctl!!!\n");
-            return -1;
-        }
-
-        while (1)
-        {
-            struct epoll_event events[MAX_EVENT]; // max events
-            int res = epoll_wait(efd, events, MAX_EVENT, -1);
-            if (res < 0) // maybe error
-            {
-                printf("Error epoll wait!!!\n");
-                return -1;
-            }
-            else // work data
-            {
-                for (int i = 0; i < res; i++) // begin in result
-                {
-                    if (events[i].events & EPOLLIN) // work event
-                    {
-                        data_read_file = read(events[i].data.fd, buf, 100); // read data in event
-                        if (data_read_file == -1)                           // maybe error
-                        {
-                            printf("Error read!!!");
-                            return -1;
-                        }
-                        printf("read %d bytes: %.*s", data_read_file, data_read_file, buf); // show data
-                        
-                        fd_write = open(file_name_write, O_CREAT | O_APPEND | O_WRONLY, 0770);
-
-                        if (data_read_file != BUFFER_SIZE) // if data < buffer
-                        {
-                            char buf_new[data_read_file];
-                            size_t bytes_to_write = data_read_file;
-                            for (int bytes_written = 0; bytes_written < bytes_to_write;) // check
-                            {
-                                int currently_written = write(fd_write, buf_new + bytes_written, bytes_to_write - bytes_written); // write
-                                if (currently_written == -1)                                                                      // maybe error
-                                {
-                                    printf("[ERROR] Cannot write file!");
-                                    return -1;
-                                }
-
-                                bytes_written += currently_written; // plus count
-                            }
-                        }
-                        else
-                        {
-                            for (; data_read_file != 0; data_read_file - BUFFER_SIZE)
-                            {
-                                size_t bytes_to_write = BUFFER_SIZE;
-                                for (int bytes_written = 0; bytes_written < bytes_to_write;) // check
-                                {
-
-                                    int currently_written = write(fd_write, buf + bytes_written, bytes_to_write - bytes_written); // write
-                                    if (currently_written == -1)                                                                  // maybe error
-                                    {
-                                        printf("[ERROR] Cannot write file!");
-                                        return -1;
-                                    }
-
-                                    bytes_written += currently_written; // plus count
-                                }
-                                data_read_file -= BUFFER_SIZE;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (close(fd_read) == -1) // claen
-    {
-        printf("[ERROR] Cannot close file read!");
+        printf("Не могу открыть файл приемник!\n");
         return -1;
     }
-    if (close(fd_write) == -1) // claen
+
+    fds[0].fd = fd_in;      // добавим файл источник в мониторинг
+    fds[0].events = POLLIN; // событие ввод
+
+    result = poll(fds, 1, 0); // узнаем что готово
+    if (result == -1)         // проверим на ошибку открытия
     {
-        printf("[ERROR] Cannot close file write!");
+        printf("Не могу получить список готовности фалов!\n");
         return -1;
     }
+    printf("Результат: %d\n", result);
+
+    close(fd_in);
+    close(fd_out);
 }

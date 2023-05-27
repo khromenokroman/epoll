@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(epoll)
+project(poll)
 
 add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/main.cpp
