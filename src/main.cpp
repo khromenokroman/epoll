@@ -18,7 +18,7 @@ int main()
     else
     {
         printf("file 1.txt fd: %d\n", fd_text);
-        int efd = epoll_create(1);
+        int efd = epoll_create(5); //create
         if (efd == -1)
         {
             printf("Error epoll create!!!\n");
@@ -31,6 +31,8 @@ int main()
         struct epoll_event ev1;
         ev1.data.fd = fd_text;
         ev1.events = EPOLLIN;
+        
+        //add epoll fd
         if (epoll_ctl(efd, EPOLL_CTL_ADD, fd_text, &ev1) == -1) // в книге написанно что нельяз передовать дескриптор файла
         {
             printf("Error epoll ctl!!!\n");
