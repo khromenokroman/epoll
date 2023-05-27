@@ -1,11 +1,8 @@
-#include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/signalfd.h>
 #include <unistd.h>
-
 #include <fcntl.h>
 #include <sys/epoll.h>
+
 int main()
 {
     printf("Start program\n");
@@ -54,11 +51,6 @@ int main()
             {
                 printf("Error epoll wait!!!\n");
                 return -1;
-            }
-            if (!res) // wait
-            {
-                printf("res: %d\n", res);
-                printf("timeout%d\n", rand() % 100);
             }
             else // work data
             {
