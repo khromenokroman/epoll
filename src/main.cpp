@@ -8,7 +8,8 @@
 #include <sys/epoll.h>
 int main()
 {
-
+    int s;
+    char buf[100];
     int fd_text = open("p", O_RDONLY);
     if (fd_text == -1)
     {
@@ -47,7 +48,7 @@ int main()
                 MAX_EVENT = 10
             };
             struct epoll_event events[MAX_EVENT];
-            int res = epoll_wait(efd, events, MAX_EVENT, 500);
+            int res = epoll_wait(efd, events, MAX_EVENT, -1);
             if (res < 0)
             {
                 printf("Error epoll wait!!!\n");
@@ -62,11 +63,15 @@ int main()
             {
                 for (int i = 0; i < res; i++)
                 {
-                    struct epoll_event *cur = &events[i];
-                    if (cur->data.fd == fd_text)
+                    if (events[i].events & EPOLLIN)
                     {
-                        printf("find\n");
-                        return 0;
+                        s = read(events[i].data.fd, buf, 100);
+                        if (s == -1)
+                        {
+                            printf("Error read!!!");
+                            return -1;
+                        }
+                        printf("read %d bytes: %.*s", s, s, buf);
                     }
                 }
             }
