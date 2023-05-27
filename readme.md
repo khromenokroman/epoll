@@ -19,4 +19,4 @@ cmake --build .
 ### Запуск
 
 ```
-epoll
+poll
