@@ -31,6 +31,23 @@ File::File(const char *file_input, const char *file_output) : File(file_input)
     printf("Файл приемник дескриптор:: %d\n", fd_out);
 
     buf = std::unique_ptr<char[]>(new char[size_buffer]); // выделим память
+
+    fds.fd = fd_in;      // добавим файл источник в мониторинг
+    fds.events = POLLIN; // события, происходящие с файловым дескриптором
+
+    status = true;
+}
+
+void File::start()
+{
+    if (!status)
+    {
+        printf("Не были проинициализированны файловые дескрипторы или не была выделена память!");
+    }
+    else
+    {
+        
+    }
 }
 
 

@@ -17,7 +17,9 @@ private:
     size_t size_buffer = 4096;             // размер буфера
     explicit File(const char *file_input); // конструктор основной
     std::unique_ptr<char[]> buf;           // буфер в динамической памяти
+    bool status = false;                   // признак того что надо ли запускать мониторинг
 public:
+    void start();
     File(const char *file_input, const char *file_output); // конструктор второй
     ~File();
 };
