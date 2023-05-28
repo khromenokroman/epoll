@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <memory>
-#include<string>
+#include <string>
 
 class File final
 {
