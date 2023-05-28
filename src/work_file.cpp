@@ -33,7 +33,7 @@ File::File(const char *file_input, const char *file_output) : File(file_input)
 
     printf("Файл приемник дескриптор:: %d\n", fd_out);
 
-    buf = std::unique_ptr<char[]>(new char[size_buffer]); // выделим память
+    buf = std::unique_ptr<char[]>(new char[SIZE_BUFFER]); // выделим память
 
     fds.fd = fd_in;      // добавим файл источник в мониторинг
     fds.events = POLLIN; // события, происходящие с файловым дескриптором
@@ -56,9 +56,9 @@ void File::write_file(size_t bytes_to_write)
     }
 }
 
-bool File::stop() //проверка остановки
+bool File::stop() // проверка остановки
 {
-    if (open("stop.txt", O_RDONLY) == -1) //если есть файл то останавливаемся
+    if (open("stop.txt", O_RDONLY) == -1) // если есть файл то останавливаемся
     {
         return true;
     }
@@ -67,12 +67,11 @@ bool File::stop() //проверка остановки
         printf("[СТОП] Поступила команда остановки!\n");
         return false;
     }
-
 }
 
 void File::start()
 {
-    while (stop()) //проверка на продолжение
+    while (stop()) // проверка на продолжение
     {
         result = poll(&fds, 1, -1); // узнаем что готово
         if (result == -1)           // проверим на ошибку
@@ -83,25 +82,26 @@ void File::start()
         {
             if (fds.revents & POLLIN)
             {
-                while ((num_pread = pread(fd_in, buf.get(), size_buffer, off_s)) > 0) // читаем пока есть что читать
+                while ((num_pread = pread(fd_in, buf.get(), SIZE_BUFFER, off_s)) > 0) // читаем пока есть что читать
                 {
-                    if (num_pread < size_buffer) // если размер считанных данных меньше буфера
+                    if (num_pread < SIZE_BUFFER) // если размер считанных данных меньше буфера
                     {
                         printf("Начинаем запись в файл данные меньше буфера\n");
                         write_file(num_pread);
+                        off_s += num_pread; // проитерировал смещение
                         printf("Запись завершена данные меньше буфера\n");
                     }
                     else // если больше
                     {
                         printf("Начинаем запись в файл данные больше буфера\n");
-                        for (; num_pread != 0; num_pread - size_buffer)
+                        for (; num_pread != 0; num_pread - SIZE_BUFFER)
                         {
-                            write_file(size_buffer);
-                            num_pread -= size_buffer;
+                            write_file(SIZE_BUFFER);
+                            off_s += SIZE_BUFFER; // проитерировал смещение
+                            num_pread -= SIZE_BUFFER;
                         }
                         printf("Запись завершена данные больше буфера\n");
                     }
-                    off_s += num_pread; // проитерировал смещение
                     printf("Позиция курсора: %ld\n", off_s);
                 }
             }
