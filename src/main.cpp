@@ -7,5 +7,6 @@
 
 int main()
 {
-    File a("input.txt","output.txt");    
+    File a("input.txt","output.txt");
+    a.start();    
 }

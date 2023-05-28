@@ -13,6 +13,8 @@ class File final
 private:
     struct pollfd fds;                     // инициализация структуры poll
     int fd_in, fd_out;                     // файловые дескрипторы
+    ssize_t num_pread;                     // сколько байт причали
+    int result;                            // готовность дескрипторов
     off_t off_s;                           // смещение источника
     size_t size_buffer = 4096;             // размер буфера
     explicit File(const char *file_input); // конструктор основной
