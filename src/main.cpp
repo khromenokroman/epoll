@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <poll.h>
 
+#include<iostream>
+
 int main()
 {
     try
@@ -13,10 +15,10 @@ int main()
     }
     catch (My_error &ex)
     {
-        printf("[ОШИБКА]: %s", ex.what());
+        std::cerr << "[ОШИБКА]: " << ex.what();
     }
     catch (std::exception &ex)
     {
-        printf("[ОШИБКА]: %s", ex.what());
+        std::cerr << "[ОШИБКА]: " << ex.what();
     }
 }

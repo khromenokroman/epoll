@@ -11,11 +11,7 @@
 File::File(const char *file_input)
 {
     fd_in = open(file_input, O_RDONLY | O_NONBLOCK); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
-    if (fd_in > 0)                                   // проверим на ошибку открытия
-    {
-        off_s = lseek(fd_in, 0, SEEK_SET); // ставим смещение в начало документа
-    }
-    printf("Файл исходник дескриптор: %d\n", fd_in);
+    std::cout << "Файл исходник дескриптор: " << fd_in << "\n";
 }
 
 File::File(const char *file_input, const char *file_output) : File(file_input)
@@ -31,7 +27,7 @@ File::File(const char *file_input, const char *file_output) : File(file_input)
         throw My_error("Не могу открыть файл приемник!\n");
     }
 
-    printf("Файл приемник дескриптор:: %d\n", fd_out);
+    std::cout << "Файл приемник дескриптор: " << fd_out << "\n";
 
     buf = std::unique_ptr<char[]>(new char[SIZE_BUFFER]); // выделим память
 
@@ -64,7 +60,7 @@ bool File::stop() // проверка остановки
     }
     else
     {
-        printf("[СТОП] Поступила команда остановки!\n");
+        std::cout << "[СТОП] Поступила команда остановки!\n";
         return false;
     }
 }
@@ -86,23 +82,23 @@ void File::start()
                 {
                     if (num_pread < SIZE_BUFFER) // если размер считанных данных меньше буфера
                     {
-                        printf("Начинаем запись в файл данные меньше буфера\n");
+                        std::cout << "Начинаем запись в файл данные меньше буфера\n";
                         write_file(num_pread);
                         off_s += num_pread; // проитерировал смещение
-                        printf("Запись завершена данные меньше буфера\n");
+                        std::cout << "Запись завершена данные меньше буфера\n";
                     }
                     else // если больше
                     {
-                        printf("Начинаем запись в файл данные больше буфера\n");
+                        std::cout << "Начинаем запись в файл данные больше буфера\n";
                         for (; num_pread != 0; num_pread - SIZE_BUFFER)
                         {
                             write_file(SIZE_BUFFER);
                             off_s += SIZE_BUFFER; // проитерировал смещение
                             num_pread -= SIZE_BUFFER;
                         }
-                        printf("Запись завершена данные больше буфера\n");
+                        std::cout << "Запись завершена данные больше буфера\n";
                     }
-                    printf("Позиция курсора: %ld\n", off_s);
+                    std::cout << "Позиция курсора: " << off_s << "\n";
                 }
             }
         }
@@ -113,19 +109,19 @@ File::~File()
 {
     if (fd_in > 0) // проверим а он вообще уществует
     {
-        printf("Закрываю исходный файл!\n");
+        std::cout << "Закрываю исходный файл!\n";
         if (close(fd_in) == -1) // проверим на ошибку
         {
-            printf("Не могу закрыть файл исходник!\n");
+            std::cout << "Не могу закрыть файл исходник!\n";
         }
     }
 
     if (fd_out > 0) // проверим а он вообще уществует
     {
-        printf("Закрываю файл приемник!\n");
+        std::cout << "Закрываю файл приемник!\n";
         if (close(fd_out) == -1) // проверим на ошибку
         {
-            printf("Не могу закрыть файл приемник!\n");
+            std::cout << "Не могу закрыть файл приемник!\n";
         }
     }
 }
