@@ -57,10 +57,6 @@ int main()
                     printf("Буфер: %.*s\n", size_buffer, buf);
                     off_s += num_pread;
                     printf("Позиция курсора: %ld\n", off_s);
-                    // for (int i=0;i<size_buffer;i++)
-                    // {
-                    //     buf[i]=0;
-                    // }
                 }
             }
         }
