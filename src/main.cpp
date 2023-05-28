@@ -7,5 +7,5 @@
 
 int main()
 {
-    File file("input.txt", "output.txt");
+    File a("input.txt","output.txt");    
 }
