@@ -56,9 +56,22 @@ inline void File::write_file(size_t bytes_to_write)
     }
 }
 
+bool File::stop() //проверка остановки
+{
+    if (open("stop.txt", O_RDONLY) == -1) //если есть файл то останавливаемся
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+}
+
 void File::start()
 {
-    while (true)
+    while (stop()) //проверка на продолжение
     {
         result = poll(&fds, 1, -1); // узнаем что готово
         if (result == -1)           // проверим на ошибку

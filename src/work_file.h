@@ -22,7 +22,7 @@ private:
 
     explicit File(const char *file_input);  // конструктор основной
     void start();                           // запустить мониторинг
-    void stop();                            // остановить мониторинг
+    bool stop();                            // остановить мониторинг
     void write_file(size_t bytes_to_write); // записать данные в файл
 
 public:
