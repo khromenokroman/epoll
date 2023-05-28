@@ -13,10 +13,10 @@ int main()
     }
     catch (My_error &ex)
     {
-        printf("[ERROR]: %s", ex.what());
+        printf("[ОШИБКА]: %s", ex.what());
     }
     catch (std::exception &ex)
     {
-        printf("[ERROR]: %s", ex.what());
+        printf("[ОШИБКА]: %s", ex.what());
     }
 }
