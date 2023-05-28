@@ -27,7 +27,7 @@ int main()
     }
     off_s = lseek(fd_in, 0, SEEK_SET); // начало файла источника
 
-    fd_out = open(file_name_out, O_RDWR | O_CREAT | O_APPEND, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
+    fd_out = open(file_name_out, O_RDWR | O_CREAT, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
     if (fd_in == -1)                                                 // проверим на ошибку открытия
     {
         printf("Не могу открыть файл приемник!\n");
@@ -51,32 +51,31 @@ int main()
             {
                 while ((num_pread = pread(fd_in, buf, size_buffer, off_s)) > 0) // читаем пока есть что читать
                 {
-                    printf("Позиция курсора: %ld\n", off_s);
-                    printf("Считанно байтов: %ld\n", num_pread);
-                    printf("Буфер: %.*s\n", size_buffer, buf);
+                    // printf("Позиция курсора: %ld\n", off_s);
+                    // printf("Считанно байтов: %ld\n", num_pread);
+                    // printf("Буфер: %.*s\n", size_buffer, buf);
                     
-                    printf("Начинаем запись в файл");
                     if (num_pread < size_buffer) //если размер считанных данных меньше буфера
                     {
-                        for (; num_pread != 0; num_pread - size_buffer)
+                        printf("Начинаем запись в файл данные меньше буфера\n");
+                        size_t bytes_to_write = num_pread;
+                        for (int bytes_written = 0; bytes_written < bytes_to_write;) // проверим
                         {
-                            size_t bytes_to_write = num_pread;
-                            for (int bytes_written = 0; bytes_written < bytes_to_write;) // проверим
+
+                            int currently_written = write(fd_out, buf + bytes_written, bytes_to_write - bytes_written); // запишем в файл
+                            if (currently_written == -1)                                                                
                             {
-
-                                int currently_written = write(fd_out, buf + bytes_written, bytes_to_write - bytes_written); // запишем в файл
-                                if (currently_written == -1)                                                                
-                                {
-                                    printf("Не могу записать в целевой файл!!\n");
-                                    return -1;
-                                }
-
-                                bytes_written += currently_written;
+                                printf("Не могу записать в целевой файл!!\n");
+                                return -1;
                             }
+
+                            bytes_written += currently_written;
                         }
+                        printf("Запись завершена данные меньше буфера\n");
                     }
                     else //если больше
                     {
+                        printf("Начинаем запись в файл данные больше буфера\n");
                         for (; num_pread != 0; num_pread - size_buffer)
                         {
                             size_t bytes_to_write = size_buffer;
@@ -94,6 +93,7 @@ int main()
                             }
                             num_pread -= size_buffer;
                         }
+                        printf("Запись завершена данные больше буфера\n");
                     }
                     off_s += num_pread; //проитерировал смещение
                     printf("Позиция курсора: %ld\n", off_s);
