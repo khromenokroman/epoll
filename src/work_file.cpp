@@ -13,4 +13,8 @@ File::File(char const *file_name_in, char const *file_name_out)
     {
         My_error("Не могу открыть файл приемник!");
     }
+    
+    fds.fd = fd_in;      // добавим файл источник в мониторинг
+    fds.events = POLLIN; // события, происходящие с файловым дескриптором
+
 }
