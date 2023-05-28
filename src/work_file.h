@@ -20,7 +20,7 @@ private:
     static const size_t SIZE_BUFFER = 4096;  // размер буфера
     char buf[SIZE_BUFFER];                   // буффер
     off_t off_s = lseek(fd_in, 0, SEEK_SET); // смещение на начало
-    
+public:
     File(char const *file_name_in, char const *file_name_out);
     ~File();
 };
