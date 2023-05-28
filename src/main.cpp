@@ -54,9 +54,8 @@ int main()
                     printf("Позиция курсора: %ld\n", off_s);
                     printf("Считанно байтов: %ld\n", num_pread);
                     printf("Буфер: %.*s\n", size_buffer, buf);
-                    off_s += num_pread;
-                    printf("Позиция курсора: %ld\n", off_s);
                     
+                    printf("Начинаем запись в файл");
                     if (num_pread < size_buffer) //если размер считанных данных меньше буфера
                     {
                         for (; num_pread != 0; num_pread - size_buffer)
@@ -96,6 +95,8 @@ int main()
                             num_pread -= size_buffer;
                         }
                     }
+                    off_s += num_pread; //проитерировал смещение
+                    printf("Позиция курсора: %ld\n", off_s);
                 }
             }
         }
