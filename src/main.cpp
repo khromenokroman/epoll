@@ -9,7 +9,7 @@ int main()
 {
     try
     {
-        File a("input.txt","output.txt");
+        File a("input.txt", "output.txt");
     }
     catch (My_error &ex)
     {
