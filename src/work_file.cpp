@@ -41,7 +41,7 @@ File::File(const char *file_input, const char *file_output) : File(file_input)
     start();
 }
 
-inline void File::write_file(size_t bytes_to_write)
+void File::write_file(size_t bytes_to_write)
 {
     for (int bytes_written = 0; bytes_written < bytes_to_write;) // проверим
     {
