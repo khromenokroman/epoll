@@ -7,6 +7,16 @@
 
 int main()
 {
-    File a("input.txt","output.txt");
-    a.start();    
+    try
+    {
+        File a("input.txt","output.txt");
+    }
+    catch (My_error &ex)
+    {
+        printf("[ERROR]: %s", ex.what());
+    }
+    catch (std::exception &ex)
+    {
+        printf("[ERROR]: %s", ex.what());
+    }
 }
