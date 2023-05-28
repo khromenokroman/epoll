@@ -92,7 +92,6 @@ void File::start()
                 }
             }
         }
-        // return 0;
     }
 }
 

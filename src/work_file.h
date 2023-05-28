@@ -20,19 +20,21 @@ private:
     std::unique_ptr<char[]> buf; // буфер в динамической памяти
     bool status = false;         // признак того что надо ли запускать мониторинг
 
-    explicit File(const char *file_input); // конструктор основной
-    void start();                          // запустить мониторинг
-    void write_file(size_t bytes_to_write);
+    explicit File(const char *file_input);  // конструктор основной
+    void start();                           // запустить мониторинг
+    void stop();                            // остановить мониторинг
+    void write_file(size_t bytes_to_write); // записать данные в файл
+
 public:
     File(const char *file_input, const char *file_output); // конструктор второй
-    ~File();
+    ~File();                                               // деструктор
 };
 
-class My_error final : std::exception
+class My_error final : std::exception // свои исключения
 {
 public:
     explicit My_error(const std::string &&message) noexcept : message{std::move(message)} {}
-    const char *what() const noexcept override { return message.c_str(); } // message
+    const char *what() const noexcept override { return message.c_str(); } // переопределим what
 private:
-    std::string message; // message
+    std::string message; // сообщение
 };
