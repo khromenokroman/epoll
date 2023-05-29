@@ -8,17 +8,6 @@
 
 #include <iostream>
 
-// File::File(size_t size_buffer)
-// {
-//     std::cout << fd_in << "\t" << fd_out << std::endl;
-//     buf = std::unique_ptr<char[]>(new char[size_buffer]); // выделим память
-//     this->size_buffer = size_buffer;
-
-//     fds.fd = fd_in;      // добавим файл источник в мониторинг
-//     fds.events = POLLIN; // события, происходящие с файловым дескриптором
-//     start();
-// }
-
 File::File(const char *file_name, Mode mode)
 {
     if (mode == Mode::read)

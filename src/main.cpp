@@ -27,13 +27,13 @@ int main()
         {
             if (fds.revents & POLLIN)
             {
-                while ((data_read = input.read_file(buffer.get_buffer(),buffer.get_size_buffer(), input.get_offset())) > 0) // читаем пока есть что читать
+                while ((data_read = input.read_file(buffer.get_buffer(), buffer.get_size_buffer(), input.get_offset())) > 0) // читаем пока есть что читать
                 {
                     if (data_read < buffer.get_size_buffer()) // если размер считанных данных меньше буфера
                     {
                         std::cout << "Начинаем запись в файл данные меньше буфера\n";
-                        write_file(data_read);
-                         += data_read; // проитерировал смещение
+                        // write_file(data_read);
+                        input.set_offset(data_read); // проитерировал смещение
                         std::cout << "Запись завершена данные меньше буфера\n";
                     }
                     else // если больше
