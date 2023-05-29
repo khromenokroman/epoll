@@ -78,20 +78,6 @@ void File::write_file(size_t bytes_to_write, void *buf, size_t size_buf, off_t o
 size_t Buffer::get_size_buffer() { return size_buffer; } // получим разсер буфера
 void *Buffer::get_buffer() { return buf.get(); }
 
-// File::File(const char *file_input, const char *file_output) : File(file_input)
-// {
-//     if (fd_in == -1) // проверим на ошибку открытия
-//     {
-//         throw My_error("Не могу открыть файл источник!\n");
-//     }
-
-//     buf = std::unique_ptr<char[]>(new char[size_buffer]); // выделим память
-
-//     fds.fd = fd_in;      // добавим файл источник в мониторинг
-//     fds.events = POLLIN; // события, происходящие с файловым дескриптором
-
-//     start();
-// }
 
 // void File::write_file(size_t bytes_to_write)
 // {

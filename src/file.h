@@ -12,22 +12,19 @@ class File final
 private:
     const char *file_name;                  // название файла
     int fd = -1;                            // файловый дескриптор
-    ssize_t num_pread;                      // сколько байт причали
-    int result;                             // готовность дескрипторов
     off_t offset;                           // смещение курсора
-    size_t size_buffer;                     // размер буфера
     std::unique_ptr<char[]> buf;            // буфер в динамической памяти
-    bool status = false;                    // признак того что надо ли запускать мониторинг
     void start();                           // запустить мониторинг
     bool stop();                            // остановить мониторинг
-    void write_file(size_t bytes_to_write); // записать данные в файл
+    // void write_file(size_t bytes_to_write); // записать данные в файл
 
 public:
-    enum class Mode
+    enum class Mode // операция с файлом
     {
         read,
         write
     };
+
     int read_file(void *buf, size_t size_buf, off_t offset);                          // читаем из файла pread  по смещению
     void write_file(size_t bytes_to_write, void *buf, size_t size_buf, off_t offset); // пишем в файл pwrite  по смещению
     size_t get_size_file();                                                           // узнать размер файла
@@ -35,6 +32,7 @@ public:
     std::string get_file_name();                                                      // узнать имя файла
     off_t get_offset();                                                               // получить смещение курсора
     void set_offset(off_t offset);                                                   // прибавим к текущему положению курсора
+
     File(const char *file_name, Mode);                                                // коструктор который берет и открывает файл на чтение или на запись
     ~File();                                                                          // деструктор
 };
