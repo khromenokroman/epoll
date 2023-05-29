@@ -1,32 +1,31 @@
 #include "work_file.h"
 #include "open_file.h"
-
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <poll.h>
+#include "create_buffer.h"
 
 #include <iostream>
 
 int main()
 {
-    try
-    {
-        Open_file input("input.txt", Type_oerations::rd);
-        Open_file output("output.txt", Type_oerations::wr);
 
-        std::cout << "input: " << input.get_fd() << "\n";
-        std::cout << "output: " << output.get_fd() << "\n";
+    struct pollfd fds;
+    int result;
+    int size_buffer = 4096;
+    std::unique_ptr<char[]> buf;
+    buf = std::unique_ptr<char[]>(new char[size_buffer]);
 
-        // File create_buf(4096);
-        // File a("input.txt", "output.txt");
-    }
-    catch (My_error &ex)
+    Open_file input("input.txt", Type_oerations::rd);   // создаем объет который открвыет файл на чтение
+    Open_file output("output.txt", Type_oerations::wr); // создаем объет который открвыет файл на запись
+    fds.fd = input.get_fd();                            // добавим файл источник в мониторинг
+    fds.events = POLLIN;                                // события, происходящие с файловым дескриптором
+    while (1)                                           // проверка на продолжение
     {
-        std::cerr << "[ОШИБКА]: " << ex.what();
-    }
-    catch (std::exception &ex)
-    {
-        std::cerr << "[ОШИБКА]: " << ex.what();
+        result = poll(&fds, 1, -1); // узнаем что готово
+        if (result>0)
+        {
+            if (fds.revents & POLLIN)
+            {
+                // ....   что то делаем
+            }
+        }
     }
 }
