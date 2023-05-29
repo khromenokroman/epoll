@@ -12,6 +12,7 @@ int main()
     try
     {
         File input("input.txt", Type_oerations::rd);
+        File input("output.txt", Type_oerations::wr);
         // File a("input.txt", "output.txt");
     }
     catch (My_error &ex)
