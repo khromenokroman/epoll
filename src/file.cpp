@@ -31,7 +31,6 @@ File::File(const char *file_name, Mode mode)
         else
         {
             this->file_name = file_name;
-            std::cout << "Файл: " << file_name << " дескриптор: " << fd << "\n";
         }
     }
     else if (mode == Mode::write)
@@ -44,7 +43,6 @@ File::File(const char *file_name, Mode mode)
         else
         {
             this->file_name = file_name;
-            std::cout << "Файл: " << file_name << "\tдескриптор: " << fd << "\n";
         }
     }
     else
@@ -55,9 +53,10 @@ File::File(const char *file_name, Mode mode)
 
 size_t File::get_size_file() { return lseek(fd, 0, SEEK_END); } // получим размер фала
 size_t File::get_fd() { return fd; }                            // получим фаловый дескриптор
-int File::read_file(void *buf, size_t size_buf, off_t offset) //читаем файл pread 
+std::string File::get_file_name() { return file_name; }         // получим имя файла
+int File::read_file(void *buf, size_t size_buf, off_t offset)   // читаем файл pread
 {
-    int data_read = pread(fd, buf, size_buf,offset);
+    int data_read = pread(fd, buf, size_buf, offset);
     if (data_read == -1)
     {
         std::cerr << "Не могу проитать данные из " << file_name << "\n";
@@ -69,17 +68,18 @@ int File::read_file(void *buf, size_t size_buf, off_t offset) //читаем ф�
     }
 }
 
-int File::write_file(void *buf, size_t size_buf, off_t offset) //читаем файл pread 
+void File::write_file(size_t bytes_to_write, void *buf, size_t size_buf, off_t offset) // пишем в файл pwrite
 {
-    int data_read = pread(fd, buf, size_buf,offset);
-    if (data_read == -1)
+    for (int bytes_written = 0; bytes_written < bytes_to_write;)
     {
-        std::cerr << "Не могу проитать данные из " << file_name << "\n";
-        return -1;
-    }
-    else
-    {
-        return data_read;
+
+        int currently_written = write(fd, buf + bytes_written, bytes_to_write - bytes_written);
+        if (currently_written == -1)
+        {
+            std::cerr << "Не могу записать в " << file_name << "\n";
+        }
+
+        bytes_written += currently_written;
     }
 }
 
@@ -173,14 +173,9 @@ File::~File()
 {
     if (fd > 0) // проверим а он вообще уществует
     {
-        std::cout << "Закрываю файл " << file_name << " ...\n";
         if (close(fd) == -1) // проверим на ошибку
         {
             std::cerr << "Не могу закрыть файл " << file_name << "\n";
-        }
-        else
-        {
-            std::cout << "Успешно!\n";
         }
     }
 }

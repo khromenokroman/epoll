@@ -11,6 +11,7 @@ class File final
 {
 private:
     struct pollfd fds;                      // инициализация структуры poll
+    const char *file_name;                  // название файла
     int fd = -1;                            // файловый дескриптор
     ssize_t num_pread;                      // сколько байт причали
     int result;                             // готовность дескрипторов
@@ -23,18 +24,18 @@ private:
     void write_file(size_t bytes_to_write); // записать данные в файл
 
 public:
-    const char *file_name; // название файла
     enum class Mode
     {
         read,
         write
     };
-    int read_file(void *buf, size_t size_buf, off_t offset); // читаем из файла pread  по смещению
-    int write_file(void *buf, size_t size_buf, off_t offset); // пишем в файл pwrite  по смещению
-    size_t get_size_file();                                  // узнать размер файла
-    size_t get_fd();                                         // узнать дескриптор
-    File(const char *file_name, Mode);                       // коструктор который берет и открывает файл на чтение или на запись
-    ~File();                                                 // деструктор
+    int read_file(void *buf, size_t size_buf, off_t offset);                          // читаем из файла pread  по смещению
+    void write_file(size_t bytes_to_write, void *buf, size_t size_buf, off_t offset); // пишем в файл pwrite  по смещению
+    size_t get_size_file();                                                           // узнать размер файла
+    size_t get_fd();                                                                  // узнать дескриптор
+    std::string get_file_name();                                                      // узнать имя файла
+    File(const char *file_name, Mode);                                                // коструктор который берет и открывает файл на чтение или на запись
+    ~File();                                                                          // деструктор
 };
 
 class Buffer // буфер
