@@ -21,7 +21,7 @@ private:
     ssize_t num_pread;                      // сколько байт причали
     int result;                             // готовность дескрипторов
     off_t off_s;                            // смещение источника
-    static const size_t SIZE_BUFFER = 100;  // размер буфера
+    size_t size_buffer;                     // размер буфера
     std::unique_ptr<char[]> buf;            // буфер в динамической памяти
     bool status = false;                    // признак того что надо ли запускать мониторинг
     File(const char *file_input);           // конструктор основной
@@ -31,7 +31,7 @@ private:
 
 public:
     File(const char *file_name, Type_oerations operations); // коструктор который берет и открывает файл на чтение или на запись
-    File(const char *file_input, const char *file_output);  // конструктор второй
+    explicit File(size_t size_buffer);                      // конструктор выделяет память
     ~File();                                                // деструктор
 };
 

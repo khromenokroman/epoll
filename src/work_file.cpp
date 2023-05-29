@@ -8,14 +8,25 @@
 
 #include <iostream>
 
+File::File(size_t size_buffer)
+{
+    buf = std::unique_ptr<char[]>(new char[size_buffer]); // выделим память
+    this->size_buffer = size_buffer;
+
+    fds.fd = fd_in;      // добавим файл источник в мониторинг
+    fds.events = POLLIN; // события, происходящие с файловым дескриптором
+
+    start();
+}
+
 File::File(const char *file_name, Type_oerations operations)
 {
     if (operations == wr)
     {
         fd_out = open(file_name, O_RDWR | O_CREAT, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
-        if (fd_in == -1)                                    // проверим на ошибку открытия
+        if (fd_out == -1)                                  // проверим на ошибку открытия
         {
-            std::cerr <<"Не могу открыть файл приемник!\n";
+            std::cerr << "Не могу открыть файл приемник!\n";
         }
         else
         {
@@ -25,51 +36,49 @@ File::File(const char *file_name, Type_oerations operations)
     else if (operations == rd)
     {
         fd_in = open(file_name, O_RDONLY | O_NONBLOCK); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
-        if (fd_in == -1)                                    // проверим на ошибку открытия
+        if (fd_in == -1)                                // проверим на ошибку открытия
         {
-            std::cerr <<"Не могу открыть файл источник!\n";
+            std::cerr << "Не могу открыть файл источник!\n";
         }
         else
         {
             std::cout << "Файл исходник дескриптор: " << fd_in << "\n";
         }
-        
     }
     else
     {
-        std::cerr <<"Переданный мне параметр для работы с файлом не известен!!\n";
+        std::cerr << "Переданный мне параметр для работы с файлом не известен!!\n";
     }
 }
 
+// File::File(const char *file_input)
+// {
+//     fd_in = open(file_input, O_RDONLY | O_NONBLOCK); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
+//     std::cout << "Файл исходник дескриптор: " << fd_in << "\n";
+// }
 
-File::File(const char *file_input)
-{
-    fd_in = open(file_input, O_RDONLY | O_NONBLOCK); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
-    std::cout << "Файл исходник дескриптор: " << fd_in << "\n";
-}
+// File::File(const char *file_input, const char *file_output) : File(file_input)
+// {
+//     if (fd_in == -1) // проверим на ошибку открытия
+//     {
+//         throw My_error("Не могу открыть файл источник!\n");
+//     }
 
-File::File(const char *file_input, const char *file_output) : File(file_input)
-{
-    if (fd_in == -1) // проверим на ошибку открытия
-    {
-        throw My_error("Не могу открыть файл источник!\n");
-    }
+//     fd_out = open(file_output, O_RDWR | O_CREAT, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
+//     if (fd_in == -1)                                    // проверим на ошибку открытия
+//     {
+//         throw My_error("Не могу открыть файл приемник!\n");
+//     }
 
-    fd_out = open(file_output, O_RDWR | O_CREAT, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
-    if (fd_in == -1)                                    // проверим на ошибку открытия
-    {
-        throw My_error("Не могу открыть файл приемник!\n");
-    }
+//     std::cout << "Файл приемник дескриптор: " << fd_out << "\n";
 
-    std::cout << "Файл приемник дескриптор: " << fd_out << "\n";
+//     buf = std::unique_ptr<char[]>(new char[SIZE_BUFFER]); // выделим память
 
-    buf = std::unique_ptr<char[]>(new char[SIZE_BUFFER]); // выделим память
+//     fds.fd = fd_in;      // добавим файл источник в мониторинг
+//     fds.events = POLLIN; // события, происходящие с файловым дескриптором
 
-    fds.fd = fd_in;      // добавим файл источник в мониторинг
-    fds.events = POLLIN; // события, происходящие с файловым дескриптором
-
-    start();
-}
+//     start();
+// }
 
 void File::write_file(size_t bytes_to_write)
 {
@@ -112,9 +121,9 @@ void File::start()
         {
             if (fds.revents & POLLIN)
             {
-                while ((num_pread = pread(fd_in, buf.get(), SIZE_BUFFER, off_s)) > 0) // читаем пока есть что читать
+                while ((num_pread = pread(fd_in, buf.get(), size_buffer, off_s)) > 0) // читаем пока есть что читать
                 {
-                    if (num_pread < SIZE_BUFFER) // если размер считанных данных меньше буфера
+                    if (num_pread < size_buffer) // если размер считанных данных меньше буфера
                     {
                         std::cout << "Начинаем запись в файл данные меньше буфера\n";
                         write_file(num_pread);
@@ -124,11 +133,11 @@ void File::start()
                     else // если больше
                     {
                         std::cout << "Начинаем запись в файл данные больше буфера\n";
-                        for (; num_pread != 0; num_pread - SIZE_BUFFER)
+                        for (; num_pread != 0; num_pread - size_buffer)
                         {
-                            write_file(SIZE_BUFFER);
-                            off_s += SIZE_BUFFER; // проитерировал смещение
-                            num_pread -= SIZE_BUFFER;
+                            write_file(size_buffer);
+                            off_s += size_buffer; // проитерировал смещение
+                            num_pread -= size_buffer;
                         }
                         std::cout << "Запись завершена данные больше буфера\n";
                     }
