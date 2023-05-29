@@ -5,6 +5,7 @@ project(poll)
 add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/src/work_file.cpp
+    ${PROJECT_SOURCE_DIR}/src/open_file.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

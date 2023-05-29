@@ -7,11 +7,6 @@
 #include <memory>
 #include <string>
 
-enum Type_oerations
-{
-    wr,
-    rd
-};
 
 class File final
 {
@@ -30,7 +25,7 @@ private:
     void write_file(size_t bytes_to_write); // записать данные в файл
 
 public:
-    File(const char *file_name, Type_oerations operations); // коструктор который берет и открывает файл на чтение или на запись
+    // File(const char *file_name, Type_oerations operations); // коструктор который берет и открывает файл на чтение или на запись
     explicit File(size_t size_buffer);                      // конструктор выделяет память
     ~File();                                                // деструктор
 };
