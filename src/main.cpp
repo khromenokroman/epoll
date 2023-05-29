@@ -32,22 +32,23 @@ int main()
                     if (data_read < buffer.get_size_buffer()) // если размер считанных данных меньше буфера
                     {
                         std::cout << "Начинаем запись в файл данные меньше буфера\n";
-                        // write_file(data_read);
+                        output.write_file(data_read, buffer.get_buffer(), buffer.get_size_buffer(), output.get_offset());
                         input.set_offset(data_read); // проитерировал смещение
+                        output.set_offset(data_read); // проитерировал смещение
                         std::cout << "Запись завершена данные меньше буфера\n";
                     }
                     else // если больше
                     {
-                        // std::cout << "Начинаем запись в файл данные больше буфера\n";
-                        // for (; num_pread != 0; num_pread - size_buffer)
-                        // {
-                        //     write_file(size_buffer);
-                        //     offser += size_buffer; // проитерировал смещение
-                        //     num_pread -= size_buffer;
-                        // }
-                        // std::cout << "Запись завершена данные больше буфера\n";
+                        std::cout << "Начинаем запись в файл данные больше буфера\n";
+                        for (; data_read != 0; data_read - buffer.get_size_buffer())
+                        {
+                            output.write_file(data_read, buffer.get_buffer(), buffer.get_size_buffer(), output.get_offset());
+                            input.set_offset(data_read); // проитерировал смещение
+                            output.set_offset(data_read); // проитерировал смещение
+                            data_read -= buffer.get_size_buffer();
+                        }
+                        std::cout << "Запись завершена данные больше буфера\n";
                     }
-                    // std::cout << "Позиция курсора: " << offser << "\n";
                 }
             }
         }

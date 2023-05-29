@@ -10,13 +10,10 @@
 class File final
 {
 private:
-    const char *file_name;                  // название файла
-    int fd = -1;                            // файловый дескриптор
-    off_t offset;                           // смещение курсора
-    std::unique_ptr<char[]> buf;            // буфер в динамической памяти
-    void start();                           // запустить мониторинг
-    bool stop();                            // остановить мониторинг
-    // void write_file(size_t bytes_to_write); // записать данные в файл
+    const char *file_name;       // название файла
+    int fd = -1;                 // файловый дескриптор
+    off_t offset = 0;            // смещение курсора
+    std::unique_ptr<char[]> buf; // буфер в динамической памяти
 
 public:
     enum class Mode // операция с файлом
@@ -31,10 +28,10 @@ public:
     size_t get_fd();                                                                  // узнать дескриптор
     std::string get_file_name();                                                      // узнать имя файла
     off_t get_offset();                                                               // получить смещение курсора
-    void set_offset(off_t offset);                                                   // прибавим к текущему положению курсора
+    void set_offset(off_t offset);                                                    // прибавим к текущему положению курсора
 
-    File(const char *file_name, Mode);                                                // коструктор который берет и открывает файл на чтение или на запись
-    ~File();                                                                          // деструктор
+    File(const char *file_name, Mode); // коструктор который берет и открывает файл на чтение или на запись
+    ~File();                           // деструктор
 };
 
 class Buffer // буфер
