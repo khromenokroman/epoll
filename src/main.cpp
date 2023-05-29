@@ -1,31 +1,15 @@
-#include "work_file.h"
-#include "open_file.h"
-#include "create_buffer.h"
+#include "file.h"
 
 #include <iostream>
 
 int main()
 {
+    File input("input.txt", File::Mode::read);
 
-    struct pollfd fds;
-    int result;
-    int size_buffer = 4096;
-    std::unique_ptr<char[]> buf;
-    buf = std::unique_ptr<char[]>(new char[size_buffer]);
+    std::cout << "Размер файла " <<input.file_name << " " << input.get_size_file() << " байт\n";
 
-    Open_file input("input.txt", Type_oerations::rd);   // создаем объет который открвыет файл на чтение
-    Open_file output("output.txt", Type_oerations::wr); // создаем объет который открвыет файл на запись
-    fds.fd = input.get_fd();                            // добавим файл источник в мониторинг
-    fds.events = POLLIN;                                // события, происходящие с файловым дескриптором
-    while (1)                                           // проверка на продолжение
-    {
-        result = poll(&fds, 1, -1); // узнаем что готово
-        if (result>0)
-        {
-            if (fds.revents & POLLIN)
-            {
-                // ....   что то делаем
-            }
-        }
-    }
+    Buffer buffer(4096);
+    std::cout << "Размер буфера: " << buffer.get_size_buffer() << "\n";
+    
+    std::cout << input.read_file(buffer.get_buffer(), buffer.get_size_buffer(),0) << std::endl;
 }
