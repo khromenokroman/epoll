@@ -8,6 +8,40 @@
 
 #include <iostream>
 
+File::File(const char *file_name, Type_oerations operations)
+{
+    if (operations == wr)
+    {
+        fd_out = open(file_name, O_RDWR | O_CREAT, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
+        if (fd_in == -1)                                    // проверим на ошибку открытия
+        {
+            std::cerr <<"Не могу открыть файл приемник!\n";
+        }
+        else
+        {
+            std::cout << "Файл приемник дескриптор: " << fd_out << "\n";
+        }
+    }
+    else if (operations == rd)
+    {
+        fd_in = open(file_name, O_RDONLY | O_NONBLOCK); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
+        if (fd_in == -1)                                    // проверим на ошибку открытия
+        {
+            std::cerr <<"Не могу открыть файл источник!\n";
+        }
+        else
+        {
+            std::cout << "Файл исходник дескриптор: " << fd_in << "\n";
+        }
+        
+    }
+    else
+    {
+        std::cerr <<"Переданный мне параметр для работы с файлом не известен!!\n";
+    }
+}
+
+
 File::File(const char *file_input)
 {
     fd_in = open(file_input, O_RDONLY | O_NONBLOCK); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
