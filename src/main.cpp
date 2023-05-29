@@ -11,6 +11,11 @@ int main()
     File input("input.txt", File::Mode::read);    // откроем на чтение
     File output("output.txt", File::Mode::write); // откроем на запись
 
+    if (input.get_fd() == -1 | output.get_fd() == -1)
+    {
+        return -1;
+    }
+
     Buffer buffer(4096);
 
     fds.fd = input.get_fd(); // добавим файл источник в мониторинг
@@ -31,23 +36,19 @@ int main()
                 {
                     if (data_read < buffer.get_size_buffer()) // если размер считанных данных меньше буфера
                     {
-                        std::cout << "Начинаем запись в файл данные меньше буфера\n";
                         output.write_file(data_read, buffer.get_buffer(), buffer.get_size_buffer(), output.get_offset());
-                        input.set_offset(data_read); // проитерировал смещение
+                        input.set_offset(data_read);  // проитерировал смещение
                         output.set_offset(data_read); // проитерировал смещение
-                        std::cout << "Запись завершена данные меньше буфера\n";
                     }
                     else // если больше
                     {
-                        std::cout << "Начинаем запись в файл данные больше буфера\n";
                         for (; data_read != 0; data_read - buffer.get_size_buffer())
                         {
                             output.write_file(data_read, buffer.get_buffer(), buffer.get_size_buffer(), output.get_offset());
-                            input.set_offset(data_read); // проитерировал смещение
+                            input.set_offset(data_read);  // проитерировал смещение
                             output.set_offset(data_read); // проитерировал смещение
                             data_read -= buffer.get_size_buffer();
                         }
-                        std::cout << "Запись завершена данные больше буфера\n";
                     }
                 }
             }
