@@ -10,12 +10,11 @@
 class File final
 {
 private:
-    struct pollfd fds;                      // инициализация структуры poll
     const char *file_name;                  // название файла
     int fd = -1;                            // файловый дескриптор
     ssize_t num_pread;                      // сколько байт причали
     int result;                             // готовность дескрипторов
-    off_t off_s;                            // смещение источника
+    off_t offset;                           // смещение курсора
     size_t size_buffer;                     // размер буфера
     std::unique_ptr<char[]> buf;            // буфер в динамической памяти
     bool status = false;                    // признак того что надо ли запускать мониторинг
@@ -34,6 +33,8 @@ public:
     size_t get_size_file();                                                           // узнать размер файла
     size_t get_fd();                                                                  // узнать дескриптор
     std::string get_file_name();                                                      // узнать имя файла
+    off_t get_offset();                                                               // получить смещение курсора
+    void set_offset(off_t offset);                                                   // прибавим к текущему положению курсора
     File(const char *file_name, Mode);                                                // коструктор который берет и открывает файл на чтение или на запись
     ~File();                                                                          // деструктор
 };

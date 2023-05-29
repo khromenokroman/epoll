@@ -54,7 +54,10 @@ File::File(const char *file_name, Mode mode)
 size_t File::get_size_file() { return lseek(fd, 0, SEEK_END); } // получим размер фала
 size_t File::get_fd() { return fd; }                            // получим фаловый дескриптор
 std::string File::get_file_name() { return file_name; }         // получим имя файла
-int File::read_file(void *buf, size_t size_buf, off_t offset)   // читаем файл pread
+off_t File::get_offset() { return offset; }                     // получим смещение курсора
+void File::set_offset(off_t offset) { this->offset += offset; } // сместить курсор
+
+int File::read_file(void *buf, size_t size_buf, off_t offset) // читаем файл pread
 {
     int data_read = pread(fd, buf, size_buf, offset);
     if (data_read == -1)
