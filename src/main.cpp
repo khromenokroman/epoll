@@ -11,7 +11,8 @@ int main()
 {
     try
     {
-        File a("input.txt", "output.txt");
+        File input("input.txt", Type_oerations::rd);
+        // File a("input.txt", "output.txt");
     }
     catch (My_error &ex)
     {
