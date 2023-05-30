@@ -10,33 +10,23 @@
 
 File::File(const char *file_name, Mode mode)
 {
-    if (mode == Mode::read)
+    int flags;
+    switch (mode)
     {
-        fd = open(file_name, O_RDONLY | O_NONBLOCK); // открывам файл источник, только чтение, неблокирующий. rwxrwx---
-        if (fd == -1)                                // проверим на ошибку открытия
-        {
-            std::cerr << "Не могу открыть " << file_name << "\n";
-        }
-        else
-        {
-            this->file_name = file_name;
-        }
+    case Mode::read:
+        flags |= (O_RDONLY | O_NONBLOCK); // только чтение, неблокирующий. rwxrwx---
+        break;
+    case Mode::write:
+        flags |= (O_RDWR | O_CREAT); // чтение\запись, создать, добавлять. rwxrwx---
+        break;
+    default:
+        Open_error("[ОШИБКА] Не знаю такого режима отрытия файла!\n"); // если передали то что не знаем исключение
+        break;
     }
-    else if (mode == Mode::write)
+    fd = open(file_name, flags); // открываем файл с режимом который указали выше
+    if (fd == -1)                // если ошибка открытия, то кидаем исключение
     {
-        fd = open(file_name, O_RDWR | O_CREAT, 0770); // открывам файл приемник, чтение\запись, создать, добавлять. rwxrwx---
-        if (fd == -1)                                 // проверим на ошибку открытия
-        {
-            std::cerr << "Не могу открыть " << file_name << "\n";
-        }
-        else
-        {
-            this->file_name = file_name;
-        }
-    }
-    else
-    {
-        std::cerr << "Не знаю такого режима открытия файла!\n";
+        Open_error("[ОШИБКА] Не могу открыть файл");
     }
 }
 
@@ -46,9 +36,9 @@ std::string File::get_file_name() { return file_name; }         // получи�
 off_t File::get_offset() { return offset; }                     // получим смещение курсора
 void File::set_offset(off_t offset) { this->offset += offset; } // сместить курсор
 
-int File::read_file(void *buf, size_t size_buf, off_t offset) // читаем файл pread
+size_t File::read_file(Buffer &buf) // читаем файл pread
 {
-    int data_read = pread(fd, buf, size_buf, offset);
+    int data_read = pread(fd, buf.get_buffer(), buf.get_size_buffer(), offset);
     if (data_read == -1)
     {
         std::cerr << "Не могу проитать данные из " << file_name << "\n";
@@ -60,12 +50,12 @@ int File::read_file(void *buf, size_t size_buf, off_t offset) // читаем ф
     }
 }
 
-void File::write_file(size_t bytes_to_write, void *buf, size_t size_buf, off_t offset) // пишем в файл pwrite
+void File::write_file(size_t bytes_to_write, Buffer &buf) // пишем в файл pwrite
 {
     for (int bytes_written = 0; bytes_written < bytes_to_write;)
     {
         //
-        int currently_written = write(fd, buf + bytes_written, bytes_to_write - bytes_written);
+        int currently_written = write(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written);
         if (currently_written == -1)
         {
             std::cerr << "Не могу записать в " << file_name << "\n";
