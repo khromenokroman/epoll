@@ -34,19 +34,15 @@ public:
     ~File();                           // деструктор
 };
 
-class Buffer // буфер
+class Buffer final // буфер
 {
 private:
-    size_t size_buffer;          // размер буфера
+    size_t size_buffer;                    // размер буфера
     std::unique_ptr<char[]> buf; // буфер
 public:
-    Buffer(size_t size_buffer)
-    {
-        buf = std::unique_ptr<char[]>(new char[size_buffer]);
-        this->size_buffer = size_buffer;
-    }
-    size_t get_size_buffer(); // получить размер буфера
-    void *get_buffer();       // получить сам буфер
+    Buffer(size_t size_buffer); // конструктор создания
+    size_t get_size_buffer();   // получить размер буфера
+    void *get_buffer();         // получить сам буфер
 };
 
 class My_error final : std::exception // свои исключения

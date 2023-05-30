@@ -17,12 +17,17 @@ int main()
     }
 
     Buffer buffer(4096);
-
+    if (buffer.get_buffer() == nullptr)
+    {
+        std::cerr << "[ОШИБКА] Не могу создать буфер!\n";
+        return -1;
+    }
     fds.fd = input.get_fd(); // добавим файл источник в мониторинг
     fds.events = POLLIN;     // будем мониторить доступность чтения
 
     while (true) // проверка на продолжение
     {
+        
         result = poll(&fds, 1, -1); // узнаем что готово
         if (result == -1)           // проверим на ошибку
         {
