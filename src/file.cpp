@@ -52,13 +52,14 @@ size_t File::read_file(Buffer &buf) // читаем файл pread
 
 void File::write_file(size_t bytes_to_write, Buffer &buf) // пишем в файл pwrite
 {
-    for (int bytes_written = 0; bytes_written < bytes_to_write;)
+    int bytes_written = 0;
+    while (bytes_written < bytes_to_write)
     {
         //
         int currently_written = write(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written);
         if (currently_written == -1)
         {
-            std::cerr << "Не могу записать в " << file_name << "\n";
+            throw Write_error("[ОШИБКА] Не могу записать в файл\n");
         }
 
         bytes_written += currently_written;
