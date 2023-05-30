@@ -16,6 +16,7 @@ private:
     void *get_buffer();          // получить сам буфер
 
 public:
+    friend File;
     Buffer(size_t size_buffer); // конструктор создания
     size_t get_size_buffer();   // получить размер буфера
     void *get_buffer();         // получить сам буфер
