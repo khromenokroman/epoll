@@ -10,6 +10,9 @@ int main()
         File output("output.txt", File::Mode::write); // откроем на запись
 
         Buffer buffer(10);
+
+        size_t data_read = input.read_file(buffer,20); // читаем данные
+        std::cout << data_read << std::endl;
     }
     catch(const Open_error &ex)
     {
@@ -29,6 +32,6 @@ int main()
     }
    
 
-    // size_t data_read = input.read_file(buffer); // читаем данные
+    // 
     // output.write_file(data_read, buffer);    // пишем данные
 }

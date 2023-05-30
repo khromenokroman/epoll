@@ -43,8 +43,8 @@ public:
         write
     };
 
-    size_t read_file(Buffer &buf);                       // читаем из файла pread  по смещению
-    void write_file(size_t bytes_to_write, Buffer &buf); // пишем в файл pwrite  по смещению
+    size_t read_file(Buffer &buf, size_t bytes_to_read);                       // читаем из файла pread  по смещению
+    size_t write_file(Buffer &buf, size_t bytes_to_write); // пишем в файл pwrite  по смещению
 
     File(const char *file_name, Mode); // коструктор который берет и открывает файл на чтение или на запись
     ~File();                           // деструктор

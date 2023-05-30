@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <string.h>
 #include <memory>
 
 #include <iostream>
@@ -20,12 +21,14 @@ File::File(const char *file_name, Mode mode)
         flags = O_RDWR | O_CREAT; // чтение\запись, создать, добавлять. rwxrwx---
         break;
     default:
+        std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
         throw Open_error("[ОШИБКА] Не знаю такого режима отрытия файла!\n"); // если передали то что не знаем исключение
         break;
     }
     fd = open(file_name, flags, 0770); // открываем файл с режимом который указали выше
-    if (fd == -1)                // если ошибка открытия, то кидаем исключение
+    if (fd == -1)                      // если ошибка открытия, то кидаем исключение
     {
+        std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
         throw Open_error("[ОШИБКА] Не могу открыть файл");
     }
 }
@@ -36,34 +39,44 @@ std::string File::get_file_name() { return file_name; }         // получи�
 off_t File::get_offset() { return offset; }                     // получим смещение курсора
 void File::set_offset(off_t offset) { this->offset += offset; } // сместить курсор
 
-size_t File::read_file(Buffer &buf) // читаем файл pread
+size_t File::read_file(Buffer &buf, size_t bytes_to_read) // читаем файл pread
 {
-    int data_read = pread(fd, buf.get_buffer(), buf.get_size_buffer(), offset);
-    if (data_read == -1)
+    if (bytes_to_read > buf.get_size_buffer()) // проверка, вдруг больше буфера, арбуз не надо :)
     {
-        std::cerr << "Не могу проитать данные из " << file_name << "\n";
-        return -1;
+        std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
+        throw Read_error("[ОШИБКА] Размер данных больше буфера!");
     }
-    else
+    size_t bytes_read = 0;
+    while (bytes_read < bytes_to_read) // читаем пока не прочитаем
     {
-        return data_read;
+        int currently_read = pread(fd, buf.get_buffer() + bytes_read, bytes_to_read - bytes_read, offset);
+        if (currently_read == -1) // вдруг ошибка
+        {
+            std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
+            throw Read_error("[ОШИБКА] Не могу проитать данные!\n");
+        }
+        bytes_read += currently_read;
+        offset += currently_read;
     }
+    return bytes_read;
 }
 
-void File::write_file(size_t bytes_to_write, Buffer &buf) // пишем в файл pwrite
+size_t File::write_file(Buffer &buf, size_t bytes_to_write) // пишем в файл pwrite
 {
-    int bytes_written = 0;
+    size_t bytes_written = 0;
     while (bytes_written < bytes_to_write)
     {
         //
-        int currently_written = write(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written);
+        int currently_written = pwrite(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written, offset);
         if (currently_written == -1)
         {
+            std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
             throw Write_error("[ОШИБКА] Не могу записать в файл\n");
         }
 
         bytes_written += currently_written;
     }
+    return bytes_written;
 }
 
 Buffer::Buffer(size_t size_buffer)
