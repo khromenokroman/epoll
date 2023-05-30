@@ -51,22 +51,25 @@ size_t File::read_file(Buffer &buf, size_t bytes_to_read) // читаем фай
         }
         else if (result > 0) // если что то нашел
         {
-            size_t bytes_read = 0;             // начальное значение
-            while (bytes_read < bytes_to_read) // читаем пока не прочитаем
+            if (fds.revents & POLLIN) // проверим событие
             {
-                int currently_read = pread(fd, buf.get_buffer() + bytes_read, bytes_to_read - bytes_read, offset);
-                if (currently_read == -1) // вдруг ошибка
+                size_t bytes_read = 0;             // начальное значение
+                while (bytes_read < bytes_to_read) // читаем пока не прочитаем
                 {
-                    throw Read_error(errno); // создадим исключение
+                    int currently_read = pread(fd, buf.get_buffer() + bytes_read, bytes_to_read - bytes_read, offset);
+                    if (currently_read == -1) // вдруг ошибка
+                    {
+                        throw Read_error(errno); // создадим исключение
+                    }
+                    if (currently_read == 0) // если конец файла то все...
+                    {
+                        break;
+                    }
+                    bytes_read += currently_read; // добавляем байт
+                    offset += currently_read;     // итерируем смещение
                 }
-                if (currently_read == 0) // если конец файла то все...
-                {
-                    break;
-                }
-                bytes_read += currently_read; // добавляем байт
-                offset += currently_read;     // итерируем смещение
+                return bytes_read;
             }
-            return bytes_read;
         }
     }
 }
@@ -75,27 +78,40 @@ size_t File::write_file(Buffer &buf, size_t bytes_to_write) // пишем в ф�
 {
     struct pollfd fds; // создадим poll
 
-    fds.fd = fd;         // добавим файл источник в мониторинг
-    fds.events = POLLIN; // события, происходящие с файловым дескриптором
+    fds.fd = fd;          // добавим файл источник в мониторинг
+    fds.events = POLLOUT; // события, происходящие с файловым дескриптором
 
     if (bytes_to_write > buf.get_size_buffer()) // проверка, вдруг больше буфера, арбуз не надо :)
     {
         throw Write_error(errno); // создадим исключение
     }
-
-    size_t bytes_written = 0;              // начальное значение
-    while (bytes_written < bytes_to_write) // пишем пока не кончатся
+    while (true) // запускаем poll и мониторим
     {
-        int currently_written = pwrite(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written, offset);
-        if (currently_written == -1) // вдруг ошибка
+        int result = poll(&fds, 1, 100); // узнаем что готово
+        if (result == -1)                // проверим на ошибку
         {
-            throw Write_error(errno); // создадим исключение
+            throw Poll_error(errno); // создадим исключение
         }
+        else if (result > 0) // если что то нашел
+        {
+            if (fds.revents & POLLOUT) // проверим событие
+            {
+                size_t bytes_written = 0;              // начальное значение
+                while (bytes_written < bytes_to_write) // пишем пока не кончатся
+                {
+                    int currently_written = pwrite(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written, offset);
+                    if (currently_written == -1) // вдруг ошибка
+                    {
+                        throw Write_error(errno); // создадим исключение
+                    }
 
-        bytes_written += currently_written; // добавляем байт
-        offset += currently_written;        // итерируем смещение
+                    bytes_written += currently_written; // добавляем байт
+                    offset += currently_written;        // итерируем смещение
+                }
+                return bytes_written;
+            }
+        }
     }
-    return bytes_written;
 }
 
 Buffer::Buffer(size_t size_buffer)
