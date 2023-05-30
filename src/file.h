@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 
+class File;
+
 class Buffer final // буфер
 {
 private:
