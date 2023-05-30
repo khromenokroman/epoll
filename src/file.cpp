@@ -7,7 +7,9 @@
 #include <string.h>
 #include <memory>
 
-File::File(char const *file_name, Mode mode)
+#include <iostream>
+
+File::File(std::string_view file_name, Mode mode)
 {
     int flags;
     switch (mode)
@@ -22,7 +24,7 @@ File::File(char const *file_name, Mode mode)
         throw Open_error(errno); // если передали то что не знаем исключение
         break;
     }
-    fd = open(file_name, flags, 0770); // открываем файл с режимом который указали выше
+    fd = open(file_name.data(), flags, 0770); // открываем файл с режимом который указали выше
     if (fd == -1)                      // если ошибка открытия, то кидаем исключение
     {
         throw Open_error(errno);

@@ -24,9 +24,9 @@ public:
 class File final
 {
 private:
-    const char *file_name; // название файла
-    int fd = -1;           // файловый дескриптор
-    off_t offset = 0;      // смещение курсора
+    std::string_view file_name; // название файла
+    int fd = -1;                // файловый дескриптор
+    off_t offset = 0;           // смещение курсора
 
 public:
     enum class Mode // операция с файлом
@@ -38,7 +38,7 @@ public:
     size_t read_file(Buffer &buf, size_t bytes_to_read);   // читаем из файла pread  по смещению
     size_t write_file(Buffer &buf, size_t bytes_to_write); // пишем в файл pwrite  по смещению
 
-    File(const char *file_name, Mode); // коструктор который берет и открывает файл на чтение или на запись
+    File(std::string_view file_name, Mode); // коструктор который берет и открывает файл на чтение или на запись
     ~File();                           // деструктор
 };
 
