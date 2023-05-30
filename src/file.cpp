@@ -44,7 +44,7 @@ size_t File::read_file(Buffer &buf, size_t bytes_to_read) // читаем фай
 
     while (true) // запускаем poll и мониторим
     {
-        int result = poll(&fds, 1, 100); // узнаем что готово
+        int result = ::poll(&fds, 1, 100); // узнаем что готово
         if (result == -1)                // проверим на ошибку
         {
             throw Poll_error(errno); // создадим исключение
@@ -56,7 +56,7 @@ size_t File::read_file(Buffer &buf, size_t bytes_to_read) // читаем фай
                 size_t bytes_read = 0;             // начальное значение
                 while (bytes_read < bytes_to_read) // читаем пока не прочитаем
                 {
-                    int currently_read = pread(fd, buf.buf.get() + bytes_read, bytes_to_read - bytes_read, offset);
+                    int currently_read = ::pread(fd, buf.buf.get() + bytes_read, bytes_to_read - bytes_read, offset);
                     if (currently_read == -1) // вдруг ошибка
                     {
                         throw Read_error(errno); // создадим исключение
@@ -87,7 +87,7 @@ size_t File::write_file(Buffer &buf, size_t bytes_to_write) // пишем в ф�
     }
     while (true) // запускаем poll и мониторим
     {
-        int result = poll(&fds, 1, 100); // узнаем что готово
+        int result = ::poll(&fds, 1, 100); // узнаем что готово
         if (result == -1)                // проверим на ошибку
         {
             throw Poll_error(errno); // создадим исключение
@@ -99,7 +99,7 @@ size_t File::write_file(Buffer &buf, size_t bytes_to_write) // пишем в ф�
                 size_t bytes_written = 0;              // начальное значение
                 while (bytes_written < bytes_to_write) // пишем пока не кончатся
                 {
-                    int currently_written = pwrite(fd, buf.buf.get() + bytes_written, bytes_to_write - bytes_written, offset);
+                    int currently_written = ::pwrite(fd, buf.buf.get() + bytes_written, bytes_to_write - bytes_written, offset);
                     if (currently_written == -1) // вдруг ошибка
                     {
                         throw Write_error(errno); // создадим исключение
