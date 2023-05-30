@@ -37,7 +37,7 @@ size_t File::read_file(Buffer &buf, size_t bytes_to_read) // читаем фай
     fds.fd = fd;         // добавим файл источник в мониторинг
     fds.events = POLLIN; // события, происходящие с файловым дескриптором
 
-    if (bytes_to_read > buf.get_size_buffer()) // проверка, вдруг больше буфера, арбуз не надо :)
+    if (bytes_to_read > buf.size_buffer) // проверка, вдруг больше буфера, арбуз не надо :)
     {
         throw Read_error(errno); // создадим исключение
     }
@@ -56,7 +56,7 @@ size_t File::read_file(Buffer &buf, size_t bytes_to_read) // читаем фай
                 size_t bytes_read = 0;             // начальное значение
                 while (bytes_read < bytes_to_read) // читаем пока не прочитаем
                 {
-                    int currently_read = pread(fd, buf.get_buffer() + bytes_read, bytes_to_read - bytes_read, offset);
+                    int currently_read = pread(fd, buf.buf.get() + bytes_read, bytes_to_read - bytes_read, offset);
                     if (currently_read == -1) // вдруг ошибка
                     {
                         throw Read_error(errno); // создадим исключение
@@ -81,7 +81,7 @@ size_t File::write_file(Buffer &buf, size_t bytes_to_write) // пишем в ф�
     fds.fd = fd;          // добавим файл источник в мониторинг
     fds.events = POLLOUT; // события, происходящие с файловым дескриптором
 
-    if (bytes_to_write > buf.get_size_buffer()) // проверка, вдруг больше буфера, арбуз не надо :)
+    if (bytes_to_write > buf.size_buffer) // проверка, вдруг больше буфера, арбуз не надо :)
     {
         throw Write_error(errno); // создадим исключение
     }
@@ -99,7 +99,7 @@ size_t File::write_file(Buffer &buf, size_t bytes_to_write) // пишем в ф�
                 size_t bytes_written = 0;              // начальное значение
                 while (bytes_written < bytes_to_write) // пишем пока не кончатся
                 {
-                    int currently_written = pwrite(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written, offset);
+                    int currently_written = pwrite(fd, buf.buf.get() + bytes_written, bytes_to_write - bytes_written, offset);
                     if (currently_written == -1) // вдруг ошибка
                     {
                         throw Write_error(errno); // создадим исключение
@@ -119,8 +119,6 @@ Buffer::Buffer(size_t size_buffer)
     buf = std::unique_ptr<char[]>(new char[size_buffer]);
     this->size_buffer = size_buffer;
 }
-size_t Buffer::get_size_buffer() { return size_buffer; } // получим разсер буфера
-void *Buffer::get_buffer() { return buf.get(); }         // получим указатель
 
 File::~File()
 {
