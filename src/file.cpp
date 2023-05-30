@@ -64,7 +64,7 @@ void File::write_file(size_t bytes_to_write, void *buf, size_t size_buf, off_t o
 {
     for (int bytes_written = 0; bytes_written < bytes_to_write;)
     {
-
+        //
         int currently_written = write(fd, buf + bytes_written, bytes_to_write - bytes_written);
         if (currently_written == -1)
         {
@@ -77,13 +77,11 @@ void File::write_file(size_t bytes_to_write, void *buf, size_t size_buf, off_t o
 
 Buffer::Buffer(size_t size_buffer)
 {
-    
     buf = std::unique_ptr<char[]>(new char[size_buffer]);
     this->size_buffer = size_buffer;
 }
 size_t Buffer::get_size_buffer() { return size_buffer; } // получим разсер буфера
-void *Buffer::get_buffer() { return buf.get(); }
-
+void *Buffer::get_buffer() { return buf.get(); }         // получим указатель
 
 File::~File()
 {
