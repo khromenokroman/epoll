@@ -12,6 +12,9 @@ class Buffer final // буфер
 private:
     size_t size_buffer;          // размер буфера
     std::unique_ptr<char[]> buf; // буфер
+    size_t get_size_buffer();    // получить размер буфера
+    void *get_buffer();          // получить сам буфер
+
 public:
     Buffer(size_t size_buffer); // конструктор создания
     size_t get_size_buffer();   // получить размер буфера
