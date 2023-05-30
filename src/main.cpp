@@ -11,9 +11,9 @@ int main()
 
         Buffer buffer(100);
 
-        size_t data_read = input.read_file(buffer, 100);  // читаем данные
+        size_t const data_read = input.read_file(buffer, 100);  // читаем данные
 
-        size_t data_write = output.write_file(buffer, 100); // пишем в файл
+        size_t data_write = output.write_file(buffer, data_read); // пишем в файл
     }
     catch (const Open_error &ex)
     {
