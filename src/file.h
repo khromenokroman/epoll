@@ -11,13 +11,12 @@ class File;
 
 class Buffer final // буфер
 {
-private:
+public:
     size_t size_buffer;          // размер буфера
     std::unique_ptr<char[]> buf; // буфер
     // size_t get_size_buffer();    // получить размер буфера
     // void *get_buffer();          // получить сам буфер
 
-public:
     Buffer(size_t size_buffer); // конструктор создания
     size_t get_size_buffer();   // получить размер буфера
     void *get_buffer();         // получить сам буфер
@@ -29,7 +28,6 @@ private:
     const char *file_name;         // название файла
     int fd = -1;                   // файловый дескриптор
     off_t offset = 0;              // смещение курсора
-    std::unique_ptr<char[]> buf;   // буфер в динамической памяти
     size_t get_size_file();        // узнать размер файла
     size_t get_fd();               // узнать дескриптор
     std::string get_file_name();   // узнать имя файла
@@ -54,6 +52,15 @@ class Open_error final : std::exception // свои исключения для 
 {
 public:
     explicit Open_error(std::string &&message) noexcept : message{std::move(message)} {}
+    const char *what() const noexcept override { return message.c_str(); } // переопределим what
+private:
+    std::string message; // сообщение
+};
+
+class Poll_error final : std::exception // свои исключения для poll
+{
+public:
+    explicit Poll_error(std::string &&message) noexcept : message{std::move(message)} {}
     const char *what() const noexcept override { return message.c_str(); } // переопределим what
 private:
     std::string message; // сообщение

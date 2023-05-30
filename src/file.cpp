@@ -41,40 +41,65 @@ void File::set_offset(off_t offset) { this->offset += offset; } // смести�
 
 size_t File::read_file(Buffer &buf, size_t bytes_to_read) // читаем файл pread
 {
+    struct pollfd fds; // создадим poll
+
+    fds.fd = fd;         // добавим файл источник в мониторинг
+    fds.events = POLLIN; // события, происходящие с файловым дескриптором
+
     if (bytes_to_read > buf.get_size_buffer()) // проверка, вдруг больше буфера, арбуз не надо :)
     {
-        std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
-        throw Read_error("[ОШИБКА] Размер данных больше буфера!");
+        throw Read_error("[ОШИБКА] Размер данных больше буфера!"); // создадим исключение
     }
-    size_t bytes_read = 0;
-    while (bytes_read < bytes_to_read) // читаем пока не прочитаем
+
+    while (true) // запускаем poll и мониторим
     {
-        int currently_read = pread(fd, buf.get_buffer() + bytes_read, bytes_to_read - bytes_read, offset);
-        if (currently_read == -1) // вдруг ошибка
+        int result = poll(&fds, 1, 100); // узнаем что готово
+        if (result == -1)                // проверим на ошибку
         {
-            std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
-            throw Read_error("[ОШИБКА] Не могу проитать данные!\n");
+            std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";  // покажем ошибку с кодом
+            throw Poll_error("[ОШИБКА] Не могу получить список готовности файлов!\n"); // создадим исключение
         }
-        bytes_read += currently_read;
-        offset += currently_read;
+        else if (result > 0) // если что то нашел
+        {
+            size_t bytes_read = 0;             // начальное значение
+            while (bytes_read < bytes_to_read) // читаем пока не прочитаем
+            {
+                int currently_read = pread(fd, buf.get_buffer() + bytes_read, bytes_to_read - bytes_read, offset);
+                if (currently_read == -1) // вдруг ошибка
+                {
+                    std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n"; // покажем ошибку с кодом
+                    throw Read_error("[ОШИБКА] Не могу проитать данные!\n");                  // создадим исключение
+                }
+                if (currently_read == 0) // если конец файла то все...
+                {
+                    break;
+                }
+                bytes_read += currently_read; // добавляем байт
+                offset += currently_read;     // итерируем смещение
+            }
+            return bytes_read;
+        }
     }
-    return bytes_read;
 }
 
 size_t File::write_file(Buffer &buf, size_t bytes_to_write) // пишем в файл pwrite
 {
-    size_t bytes_written = 0;
-    while (bytes_written < bytes_to_write)
+    if (bytes_to_write > buf.get_size_buffer()) // проверка, вдруг больше буфера
     {
-        //
+        throw Read_error("[ОШИБКА] Размер данных больше буфера!"); // создадим исключение
+    }
+    size_t bytes_written = 0;              // начальное значение
+    while (bytes_written < bytes_to_write) // пишем пока не кончатся
+    {
         int currently_written = pwrite(fd, buf.get_buffer() + bytes_written, bytes_to_write - bytes_written, offset);
-        if (currently_written == -1)
+        if (currently_written == -1) // вдруг ошибка
         {
-            std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n";
-            throw Write_error("[ОШИБКА] Не могу записать в файл\n");
+            std::cerr << "Код ошибки: " << errno << " - " << strerror(errno) << "\n"; // покажем ошибку с кодом
+            throw Write_error("[ОШИБКА] Не могу записать в файл\n");                  // создадим исключение
         }
 
-        bytes_written += currently_written;
+        bytes_written += currently_written; // добавляем байт
+        offset += currently_written;        // итерируем смещение
     }
     return bytes_written;
 }
