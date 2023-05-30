@@ -14,19 +14,19 @@ File::File(const char *file_name, Mode mode)
     switch (mode)
     {
     case Mode::read:
-        flags |= (O_RDONLY | O_NONBLOCK); // только чтение, неблокирующий. rwxrwx---
+        flags = O_RDONLY | O_NONBLOCK; // только чтение, неблокирующий. rwxrwx---
         break;
     case Mode::write:
-        flags |= (O_RDWR | O_CREAT); // чтение\запись, создать, добавлять. rwxrwx---
+        flags = O_RDWR | O_CREAT; // чтение\запись, создать, добавлять. rwxrwx---
         break;
     default:
-        Open_error("[ОШИБКА] Не знаю такого режима отрытия файла!\n"); // если передали то что не знаем исключение
+        throw Open_error("[ОШИБКА] Не знаю такого режима отрытия файла!\n"); // если передали то что не знаем исключение
         break;
     }
-    fd = open(file_name, flags); // открываем файл с режимом который указали выше
+    fd = open(file_name, flags, 0770); // открываем файл с режимом который указали выше
     if (fd == -1)                // если ошибка открытия, то кидаем исключение
     {
-        Open_error("[ОШИБКА] Не могу открыть файл");
+        throw Open_error("[ОШИБКА] Не могу открыть файл");
     }
 }
 
