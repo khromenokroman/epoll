@@ -39,7 +39,7 @@ public:
     size_t write_file(Buffer &buf, size_t bytes_to_write); // пишем в файл pwrite  по смещению
 
     File(std::string_view file_name, Mode); // коструктор который берет и открывает файл на чтение или на запись
-    ~File();                           // деструктор
+    ~File() noexcept;                       // деструктор
 };
 
 // свои исключения для открытия файла
